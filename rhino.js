@@ -9,11 +9,41 @@ if (packageName == 'com.intsig.camscanner') {
     //     var mInitialApplication = common.getObjectField(param.thisObject, 'mInitialApplication');
     //     var classLoader = common.callMethod(mInitialApplication, 'getClassLoader');
     // });
+    common.hookAllMethods('android.content.Intent', 'putExtra', function (param) {
+        // var context = common.getcontext();
+        // var classLoader = context.getClassLoader();
+        // common.log(param)
+        if (param.args.length == 2 && param.args[0] == 'tagetkfkalabel') {
+            if (param.args[1] == '团队版') {
+                param.args[1] = '幸运大转盘';
+            }
+        }
+
+        if (param.args.length == 2 && param.args[0] == 'tagetkfkalabel') {
+            if (param.args[1].contains('高级账户')) {
+                param.args[1] = '积分福利';
+            }
+        }
+
+        if (param.args.length == 2 && param.args[0] == 'targeturl') {
+            var url = param.args[1];
+            premiumFeature = 'https://mo.camscanner.com/app/premiumFeature';
+            teamUrl = 'http://www.camscanner.com/team/intro';
+
+            intergralTurntable = 'https://mo.camscanner.com/integral/intergralTurntable';
+            intergralManageNew = 'https://mo.camscanner.com/integral/integralManageNew';
+            if (url.contains(premiumFeature) || url.contains(teamUrl)) {
+                url = url.replace(premiumFeature, intergralManageNew);
+                url = url.replace(teamUrl, intergralTurntable);
+                param.args[1] = url;
+            }
+        }
+    }, null);
 
     common.hookAllConstructors('com.intsig.camscanner.https.entity.CSQueryProperty', function (param) {
         var context = common.getcontext();
         var classLoader = context.getClassLoader();
-        common.log('args:' + param.args[0]);
+        // common.log('args:' + param.args[0]);
 
         // define var 
         var currentTimeMillis = java.lang.System.currentTimeMillis();
@@ -111,7 +141,7 @@ if (packageName == 'com.intsig.camscanner') {
         }
 
         result.put('data', data);
-        common.log('after result:' + result.toString());
+        // common.log('after result:' + result.toString());
 
     }, null);
 }
